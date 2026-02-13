@@ -45,11 +45,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Arclight-Digital/prism.git"
+    "url": "https://github.com/arclight-digital/prism.git"
   },
-  "homepage": "https://github.com/Arclight-Digital/prism#readme",
+  "homepage": "https://github.com/arclight-digital/prism#readme",
   "bugs": {
-    "url": "https://github.com/Arclight-Digital/prism/issues"
+    "url": "https://github.com/arclight-digital/prism/issues"
   },
   "dependencies": {
     "chokidar": "^4.0.0"
