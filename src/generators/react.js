@@ -60,7 +60,7 @@ export function generateReact(meta, config, root) {
   mkdirSync(outDir, { recursive: true });
 
   const prefix = config.prefix;
-  const wcImport = config.wcPackage;
+  const wcImport = config.wcPackage || `@${prefix}/${prefix}-ui`;
 
   const lines = [HEADER, ''];
   lines.push(`import React from 'react';`);

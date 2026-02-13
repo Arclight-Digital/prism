@@ -161,7 +161,7 @@ Each framework section (`react`, `vue`, `svelte`, `angular`, `solid`, `preact`) 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `outDir` | `string` | *required* | Output directory for generated wrappers |
-| `wcPackage` | `string` | *required* | Package name used in `import` statements for the web component |
+| `wcPackage` | `string` | `'@{prefix}/{prefix}-ui'` | Package name used in `import` statements for the web component |
 | `barrels` | `boolean` | `false` | Append exports to tier-level and root-level barrel (index) files |
 
 ### HTML options

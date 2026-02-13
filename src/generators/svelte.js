@@ -59,7 +59,7 @@ export function generateSvelte(meta, config, root) {
 
   mkdirSync(outDir, { recursive: true });
 
-  const wcImport = config.wcPackage;
+  const wcImport = config.wcPackage || `@${config.prefix}/${config.prefix}-ui`;
   const lines = [HEADER];
 
   // <script lang="ts">

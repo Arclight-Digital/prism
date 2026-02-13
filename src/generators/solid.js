@@ -47,7 +47,7 @@ export function generateSolid(meta, config, root) {
 
   mkdirSync(outDir, { recursive: true });
 
-  const wcImport = config.wcPackage;
+  const wcImport = config.wcPackage || `@${config.prefix}/${config.prefix}-ui`;
   const lines = [HEADER, ''];
 
   lines.push(`import { splitProps, type Component, type JSX } from 'solid-js';`);
