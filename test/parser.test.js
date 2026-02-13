@@ -8,22 +8,23 @@ const fixture = readFileSync(
   'utf-8',
 );
 const filePath = '/project/src/reactive/button.js';
+const prefix = 'arc';
 
 describe('parseComponent', () => {
   it('extracts tag, className, and pascalName from customElements.define', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     expect(meta.tag).toBe('arc-button');
     expect(meta.className).toBe('ArcButton');
     expect(meta.pascalName).toBe('Button');
   });
 
   it('extracts tier from file path', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     expect(meta.tier).toBe('reactive');
   });
 
   it('parses static properties with types and reflect', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     const variant = meta.props.find((p) => p.name === 'variant');
     expect(variant.type).toBe('String');
     expect(variant.reflect).toBe(true);
@@ -38,7 +39,7 @@ describe('parseComponent', () => {
   });
 
   it('applies constructor defaults', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     const variant = meta.props.find((p) => p.name === 'variant');
     expect(variant.default).toBe("'primary'");
 
@@ -53,14 +54,14 @@ describe('parseComponent', () => {
   });
 
   it('extracts CSS from css`` template literals', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     expect(meta.css).toContain(':host');
     expect(meta.css).toContain('display: inline-flex');
     expect(meta.css).toContain('.btn');
   });
 
   it('detects enum values from :host([prop="value"]) patterns', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     const variant = meta.props.find((p) => p.name === 'variant');
     expect(variant.values).toContain('primary');
     expect(variant.values).toContain('secondary');
@@ -72,20 +73,20 @@ describe('parseComponent', () => {
   });
 
   it('extracts template from render()', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     expect(meta.template).toContain('<button');
     expect(meta.template).toContain('<slot>');
   });
 
   it('extracts custom events from dispatchEvent calls', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     expect(meta.events).toContain('arc-click');
     expect(meta.events).toContain('arc-action');
     expect(meta.events).toHaveLength(2);
   });
 
   it('detects interactivity level — interactive due to events', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     expect(meta.interactivity).toBe('interactive');
   });
 
@@ -121,7 +122,7 @@ describe('parseComponent', () => {
   });
 
   it('extracts host display value', () => {
-    const meta = parseComponent(fixture, filePath);
+    const meta = parseComponent(fixture, filePath, prefix);
     expect(meta.hostDisplay).toBe('inline-flex');
   });
 

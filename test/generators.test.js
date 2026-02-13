@@ -41,6 +41,7 @@ afterEach(() => {
 const config = (outSub) => ({
   outDir: outSub,
   wcPackage: '@arclux/arc-ui',
+  prefix: 'arc',
   barrels: false,
 });
 
@@ -113,6 +114,7 @@ describe('generateHTML', () => {
     const htmlConfig = {
       outDir: 'out/html',
       tokensCSS: 'tokens.css',
+      prefix: 'arc',
       inlineVariant: false,
     };
     const result = generateHTML(meta, htmlConfig, tmpDir);
@@ -125,14 +127,14 @@ describe('generateHTML', () => {
 
   it('skips interactive components', () => {
     const interactiveMeta = { ...meta, interactivity: 'interactive' };
-    const result = generateHTML(interactiveMeta, { outDir: 'out/html' }, tmpDir);
+    const result = generateHTML(interactiveMeta, { outDir: 'out/html', prefix: 'arc' }, tmpDir);
     expect(result.skipped).toBe(true);
   });
 });
 
 describe('generateCSS', () => {
   it('produces a .css file with light DOM selectors', () => {
-    const cssConfig = { outDir: 'out/css', tokensCSS: 'tokens.css' };
+    const cssConfig = { outDir: 'out/css', tokensCSS: 'tokens.css', prefix: 'arc' };
     const result = generateCSS(meta, cssConfig, tmpDir);
     expect(result.skipped).toBe(false);
     expect(result.results[0].written).toBe(true);
@@ -202,7 +204,7 @@ describe('manual-file safety', () => {
     mkdirSync(outDir, { recursive: true });
     writeFileSync(join(outDir, 'button.css'), '/* My manual CSS */\n');
 
-    const cssConfig = { outDir: 'out/css', tokensCSS: 'tokens.css' };
+    const cssConfig = { outDir: 'out/css', tokensCSS: 'tokens.css', prefix: 'arc' };
     const result = generateCSS(meta, cssConfig, tmpDir);
     expect(result.results[0].written).toBe(false);
   });

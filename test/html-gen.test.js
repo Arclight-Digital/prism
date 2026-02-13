@@ -36,6 +36,7 @@ const baseMeta = {
 const htmlConfig = {
   outDir: 'out/html',
   tokensCSS: 'tokens.css',
+  prefix: 'arc',
   inlineVariant: false,
 };
 

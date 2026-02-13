@@ -47,7 +47,7 @@ export function generatePreact(meta, config, root) {
 
   mkdirSync(outDir, { recursive: true });
 
-  const wcImport = config.wcPackage || '@arclux/arc-ui';
+  const wcImport = config.wcPackage;
   const lines = [HEADER, ''];
 
   lines.push(`import { type FunctionComponent } from 'preact';`);

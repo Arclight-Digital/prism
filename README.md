@@ -89,6 +89,7 @@ Create a `prism.config.js` in your project root. Every section except `component
 ```js
 export default {
   // ── Source ────────────────────────────────────────
+  prefix: 'arc',
   components: 'packages/web-components/src',
   tiers: ['content', 'reactive', 'application'],
   ignore: ['**/index.js', '**/shared-styles.js', '**/icons/**'],
@@ -148,6 +149,7 @@ export default {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
+| `prefix` | `string` | `'arc'` | Component tag prefix. Controls tag stripping (`arc-button` &rarr; `Button`), CSS bundle filename (`arc-ui.css`), and custom event detection. Change this to match your own design system prefix. |
 | `components` | `string` | *required* | Root directory containing Lit component source files |
 | `tiers` | `string[]` | *required* | Subdirectories within `components` to scan (e.g. `['content', 'reactive']`) |
 | `ignore` | `string[]` | `[]` | Patterns to skip — bare filenames (`index.js`), prefixed (`**/index.js`), or directory globs (`**/icons/**`) |
@@ -159,7 +161,7 @@ Each framework section (`react`, `vue`, `svelte`, `angular`, `solid`, `preact`) 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `outDir` | `string` | *required* | Output directory for generated wrappers |
-| `wcPackage` | `string` | `'@arclux/arc-ui'` | Package name used in `import` statements for the web component |
+| `wcPackage` | `string` | *required* | Package name used in `import` statements for the web component |
 | `barrels` | `boolean` | `false` | Append exports to tier-level and root-level barrel (index) files |
 
 ### HTML options
@@ -174,7 +176,7 @@ Each framework section (`react`, `vue`, `svelte`, `angular`, `solid`, `preact`) 
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `css.outDir` | `string` | *required* | Output directory for per-component CSS files and `arc-ui.css` bundle |
+| `css.outDir` | `string` | *required* | Output directory for per-component CSS files and `{prefix}-ui.css` bundle |
 | `css.tokensCSS` | `string` | — | Path to design tokens CSS (included as `:root` block in the bundle) |
 
 ## How parsing works
@@ -259,7 +261,7 @@ import { parseComponent } from '@arclux/prism/parser';
 import { shadowToLight } from '@arclux/prism/css-transform';
 import { loadTokenMap, resolveTokens } from '@arclux/prism/resolve-tokens';
 
-const meta = parseComponent(source, filePath);
+const meta = parseComponent(source, filePath, 'arc');
 const lightCSS = shadowToLight(meta.css, meta.tag);
 ```
 

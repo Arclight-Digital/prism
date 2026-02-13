@@ -1,4 +1,6 @@
 export default {
+  // Component tag prefix (e.g. 'arc' → arc-button, ArcButton)
+  prefix: 'arc',
   // Where to find Lit web components
   components: 'packages/web-components/src',
   // Tier directories to scan (maps to output subdirectories)

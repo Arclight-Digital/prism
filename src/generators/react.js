@@ -59,7 +59,8 @@ export function generateReact(meta, config, root) {
 
   mkdirSync(outDir, { recursive: true });
 
-  const wcImport = config.wcPackage || '@arclux/arc-ui';
+  const prefix = config.prefix;
+  const wcImport = config.wcPackage;
 
   const lines = [HEADER, ''];
   lines.push(`import React from 'react';`);
@@ -79,9 +80,9 @@ export function generateReact(meta, config, root) {
   lines.push('  children?: React.ReactNode;');
 
   // Add event handler props to interface
-  const eventMap = buildEventMap(meta);
+  const eventMap = buildEventMap(meta, prefix);
   for (const [propName, eventName] of Object.entries(eventMap)) {
-    if (eventName.startsWith('arc-')) {
+    if (eventName.startsWith(prefix + '-')) {
       lines.push(`  ${propName}?: (e: CustomEvent) => void;`);
     } else {
       lines.push(`  ${propName}?: (e: Event) => void;`);
@@ -101,7 +102,7 @@ export function generateReact(meta, config, root) {
   if (hasEvents) {
     lines.push(`  events: {`);
     for (const [propName, eventName] of Object.entries(eventMap)) {
-      const eventType = eventName.startsWith('arc-') ? 'CustomEvent' : 'Event';
+      const eventType = eventName.startsWith(prefix + '-') ? 'CustomEvent' : 'Event';
       lines.push(`    ${propName}: '${eventName}' as EventName<${eventType}>,`);
     }
     lines.push(`  },`);
@@ -117,13 +118,13 @@ export function generateReact(meta, config, root) {
 /**
  * Build the event map for a component.
  */
-function buildEventMap(meta) {
+function buildEventMap(meta, prefix = 'arc') {
   const eventMap = {};
   for (const event of meta.events) {
     eventMap[eventToReactProp(event)] = event;
   }
   // Add native click for button-like components
-  if (!meta.events.includes('click') && (meta.tag === 'arc-button' || meta.template.includes('<button'))) {
+  if (!meta.events.includes('click') && (meta.tag === prefix + '-button' || meta.template.includes('<button'))) {
     eventMap.onClick = 'click';
   }
   return eventMap;

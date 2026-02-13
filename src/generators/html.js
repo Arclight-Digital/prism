@@ -378,8 +378,9 @@ function formatSnippet(innerHTML, wrapTag, wrapAttrs) {
  * Outputs a clean snippet — no page wrapper.
  */
 function generateHTMLExternal(meta, config, root) {
+  const prefix = config.prefix;
   const outDir = join(root, config.outDir);
-  const fileName = meta.tag.replace(/^arc-/, '') + '.html';
+  const fileName = meta.tag.replace(new RegExp('^' + prefix + '-'), '') + '.html';
   const outPath = join(outDir, fileName);
 
   if (existsSync(outPath)) {
@@ -391,14 +392,14 @@ function generateHTMLExternal(meta, config, root) {
 
   mkdirSync(outDir, { recursive: true });
 
-  const cssFileName = meta.tag.replace(/^arc-/, '') + '.css';
+  const cssFileName = meta.tag.replace(new RegExp('^' + prefix + '-'), '') + '.css';
   const innerHTML = templateToHTML(meta);
   const tag = hostTag(meta);
   const snippet = formatSnippet(innerHTML, tag, `class="${meta.tag}"`);
 
   const lines = [
     HEADER,
-    `<!-- ${meta.tag} — requires ${cssFileName} + tokens.css (or arc-ui.css) -->`,
+    `<!-- ${meta.tag} — requires ${cssFileName} + tokens.css (or ${prefix}-ui.css) -->`,
     snippet,
     '',
   ];
@@ -525,8 +526,9 @@ function applyInlineStyles(html, rules, hostClass) {
  * Outputs a clean snippet with inline styles + <style> block for pseudo-states.
  */
 function generateHTMLInline(meta, config, root) {
+  const prefix = config.prefix;
   const outDir = join(root, config.outDir);
-  const fileName = meta.tag.replace(/^arc-/, '') + '.inline.html';
+  const fileName = meta.tag.replace(new RegExp('^' + prefix + '-'), '') + '.inline.html';
   const outPath = join(outDir, fileName);
 
   if (existsSync(outPath)) {

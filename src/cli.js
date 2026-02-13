@@ -88,7 +88,7 @@ function discoverComponents(config) {
 // ── Process a single component file ─────────────────────────
 function processFile(filePath, config) {
   const source = readFileSync(filePath, 'utf-8');
-  const meta = parseComponent(source, filePath);
+  const meta = parseComponent(source, filePath, config.prefix);
 
   if (!meta) {
     console.log(`  skip: ${relative(root, filePath)} (no component found)`);
@@ -161,7 +161,7 @@ function processFile(filePath, config) {
   if (config.html) {
     const htmlOut = generateHTML(meta, config.html, root);
     if (htmlOut.skipped) {
-      console.log(`  skip: ${meta.tag.replace(/^arc-/, '')} (interactive — use WC or React import)`);
+      console.log(`  skip: ${meta.tag.replace(new RegExp('^' + config.prefix + '-'), '')} (interactive — use WC or React import)`);
     } else {
       const hybridTag = meta.interactivity === 'hybrid' ? ' (hybrid)' : '';
       for (const r of htmlOut.results) {
@@ -192,7 +192,7 @@ function processFile(filePath, config) {
   if (config.react && config.react.barrels) {
     const reactDir = join(root, config.react.outDir);
 
-    const wcBarrel = updateWCBarrel(meta, componentsDir);
+    const wcBarrel = updateWCBarrel(meta, componentsDir, config.prefix);
     if (wcBarrel.updated) {
       console.log(`  barrel: ${relative(root, wcBarrel.path)} (added ${meta.className})`);
     }
@@ -334,7 +334,7 @@ async function main() {
       if (!config.css) return;
       const currentFiles = discoverComponents(config);
       const metas = currentFiles
-        .map((f) => parseComponent(readFileSync(f, 'utf-8'), f))
+        .map((f) => parseComponent(readFileSync(f, 'utf-8'), f, config.prefix))
         .filter(Boolean);
       if (metas.length > 0) {
         const bundleResults = generateCSSBundle(metas, config.css, root);
@@ -378,7 +378,7 @@ async function main() {
       console.log('');
     }
 
-    // Generate CSS bundle (arc-ui.css + arc-ui.inline.css)
+    // Generate CSS bundle (prefix-ui.css)
     if (config.css && allMetas.length > 0) {
       const bundleResults = generateCSSBundle(allMetas, config.css, root);
       for (const r of bundleResults) {

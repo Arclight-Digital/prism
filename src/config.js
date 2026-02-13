@@ -13,8 +13,15 @@ import { join } from 'node:path';
  * code never has to null-check.
  */
 export function normalizeConfig(config) {
+  config.prefix = config.prefix || 'arc';
   config.ignore = config.ignore || [];
   config.tiers = config.tiers || [];
+
+  // Propagate prefix to each framework config section
+  for (const key of ['react', 'vue', 'svelte', 'angular', 'solid', 'preact', 'html', 'css']) {
+    if (config[key]) config[key].prefix = config.prefix;
+  }
+
   return config;
 }
 

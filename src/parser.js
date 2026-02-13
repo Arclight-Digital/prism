@@ -32,9 +32,10 @@
  * Parse a Lit component source file into ComponentMeta.
  * @param {string} source - file contents
  * @param {string} filePath - path to the file (used to extract tier)
+ * @param {string} [prefix='arc'] - component tag prefix (e.g. 'arc' for arc-button)
  * @returns {ComponentMeta|null}
  */
-export function parseComponent(source, filePath) {
+export function parseComponent(source, filePath, prefix = 'arc') {
   // Extract tag name and class name from customElements.define
   const defineMatch = source.match(
     /customElements\.define\(\s*['"]([^'"]+)['"]\s*,\s*(\w+)\s*\)/
@@ -44,8 +45,9 @@ export function parseComponent(source, filePath) {
   const tag = defineMatch[1];
   const className = defineMatch[2];
 
-  // Derive PascalName by stripping Arc prefix
-  const pascalName = className.replace(/^Arc/, '');
+  // Derive PascalName by stripping the prefix (e.g. Arc → Button)
+  const pascalPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+  const pascalName = className.replace(new RegExp('^' + pascalPrefix), '');
 
   // Extract tier from file path (supports both / and \ separators)
   const normalizedPath = filePath.replace(/\\/g, '/');

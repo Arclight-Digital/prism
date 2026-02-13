@@ -25,7 +25,8 @@ export function generateCSS(meta, config, root) {
   }
 
   const outDir = join(root, config.outDir);
-  const fileName = meta.tag.replace(/^arc-/, '') + '.css';
+  const prefix = config.prefix;
+  const fileName = meta.tag.replace(new RegExp('^' + prefix + '-'), '') + '.css';
   const outPath = join(outDir, fileName);
 
   // Safety: never overwrite files without our header
@@ -68,7 +69,8 @@ export function generateCSSBundle(metas, config, root) {
   const staticMetas = metas.filter((m) => m.interactivity !== 'interactive');
 
   // Tokens variant — includes :root tokens block + all component CSS with var() refs
-  const tokensPath = join(outDir, 'arc-ui.css');
+  const prefix = config.prefix;
+  const tokensPath = join(outDir, prefix + '-ui.css');
   let tokenBlock = '';
   const tokensCSSPath = join(root, config.tokensCSS);
   if (existsSync(tokensCSSPath)) {

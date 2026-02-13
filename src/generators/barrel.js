@@ -30,8 +30,8 @@ import { join } from 'node:path';
 const wcConfig = {
   barrelExt: '.js',
   existsCheck: (meta) => meta.className,
-  tierExportLines: (meta) => {
-    const fileName = meta.tag.replace(/^arc-/, '');
+  tierExportLines: (meta, prefix = 'arc') => {
+    const fileName = meta.tag.replace(new RegExp('^' + prefix + '-'), '');
     return `export { ${meta.className} } from './${fileName}.js';`;
   },
   separator: '\n',
@@ -105,7 +105,7 @@ const FRAMEWORK_CONFIGS = {
  * @param {string} outDir - absolute path to framework src dir
  * @returns {{ path: string, updated: boolean }}
  */
-function updateTierBarrel(cfg, meta, outDir) {
+function updateTierBarrel(cfg, meta, outDir, prefix = 'arc') {
   const barrelPath = join(outDir, meta.tier, `index${cfg.barrelExt}`);
   if (!existsSync(barrelPath)) {
     return { path: barrelPath, updated: false };
@@ -118,7 +118,7 @@ function updateTierBarrel(cfg, meta, outDir) {
     return { path: barrelPath, updated: false };
   }
 
-  const exportLines = cfg.tierExportLines(meta);
+  const exportLines = cfg.tierExportLines(meta, prefix);
   const updated = content.trimEnd() + cfg.separator + exportLines + '\n';
   writeFileSync(barrelPath, updated);
   return { path: barrelPath, updated: true };
@@ -179,10 +179,10 @@ function updateRootBarrel(cfg, meta, outDir) {
   return { path: barrelPath, updated: true };
 }
 
-// ── Public API (preserves existing function signatures) ─────
+// ── Public API ──────────────────────────────────────────────
 
-export function updateWCBarrel(meta, componentsDir) {
-  return updateTierBarrel(FRAMEWORK_CONFIGS.wc, meta, componentsDir);
+export function updateWCBarrel(meta, componentsDir, prefix = 'arc') {
+  return updateTierBarrel(FRAMEWORK_CONFIGS.wc, meta, componentsDir, prefix);
 }
 
 export function updateWCRootBarrel(meta, componentsDir) {
