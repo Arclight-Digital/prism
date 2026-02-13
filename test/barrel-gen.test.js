@@ -1,0 +1,274 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import {
+  updateReactTierBarrel,
+  updateReactRootBarrel,
+  updateWCBarrel,
+  updateWCRootBarrel,
+  updateVueTierBarrel,
+  updateVueRootBarrel,
+  updateSvelteTierBarrel,
+  updateSvelteRootBarrel,
+  updateAngularTierBarrel,
+  updateAngularRootBarrel,
+  updateSolidTierBarrel,
+  updateSolidRootBarrel,
+  updatePreactTierBarrel,
+  updatePreactRootBarrel,
+} from '../src/generators/barrel.js';
+
+const meta = {
+  tag: 'arc-button',
+  className: 'ArcButton',
+  pascalName: 'Button',
+  tier: 'reactive',
+  props: [],
+  css: '',
+  template: '',
+  events: [],
+  interactivity: 'static',
+  hostDisplay: 'block',
+};
+
+let tmpDir;
+
+beforeEach(() => {
+  tmpDir = mkdtempSync(join(tmpdir(), 'prism-barrel-'));
+});
+
+afterEach(() => {
+  rmSync(tmpDir, { recursive: true, force: true });
+});
+
+// ── React ────────────────────────────────────────────────────
+
+describe('React tier barrel', () => {
+  it('appends export to existing tier barrel', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'index.ts'), '// existing\n');
+
+    const result = updateReactTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tierDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { Button } from './Button.js'");
+    expect(content).toContain("export type { ButtonProps } from './Button.js'");
+  });
+
+  it('skips duplicate exports', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(
+      join(tierDir, 'index.ts'),
+      "export { Button } from './Button.js';\nexport type { ButtonProps } from './Button.js';\n",
+    );
+
+    const result = updateReactTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(false);
+  });
+
+  it('returns not updated when barrel file does not exist', () => {
+    const result = updateReactTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(false);
+  });
+});
+
+describe('React root barrel', () => {
+  it('appends export lines to root barrel', () => {
+    writeFileSync(join(tmpDir, 'index.ts'), '// root barrel\n');
+
+    const result = updateReactRootBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tmpDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { Button } from './reactive/Button.js'");
+    expect(content).toContain("export type { ButtonProps } from './reactive/Button.js'");
+  });
+});
+
+// ── WC ───────────────────────────────────────────────────────
+
+describe('WC tier barrel', () => {
+  it('appends export to existing tier barrel', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'index.js'), '// existing\n');
+
+    const result = updateWCBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tierDir, 'index.js'), 'utf-8');
+    expect(content).toContain("export { ArcButton } from './button.js'");
+  });
+});
+
+describe('WC root barrel — merge strategy', () => {
+  it('merges into existing tier export line', () => {
+    writeFileSync(
+      join(tmpDir, 'index.js'),
+      "export { ArcCard } from './reactive/index.js';\n",
+    );
+
+    const result = updateWCRootBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tmpDir, 'index.js'), 'utf-8');
+    expect(content).toContain('ArcCard');
+    expect(content).toContain('ArcButton');
+    expect(content).toContain("from './reactive/index.js'");
+  });
+
+  it('appends new line when no existing tier export', () => {
+    writeFileSync(join(tmpDir, 'index.js'), '// root\n');
+
+    const result = updateWCRootBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tmpDir, 'index.js'), 'utf-8');
+    expect(content).toContain('ArcButton');
+    expect(content).toContain("from './reactive/index.js'");
+  });
+});
+
+// ── Vue ──────────────────────────────────────────────────────
+
+describe('Vue tier barrel', () => {
+  it('appends default-as export to tier barrel', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'index.ts'), '// existing\n');
+
+    const result = updateVueTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tierDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { default as Button } from './Button.vue'");
+  });
+
+  it('skips duplicates', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'index.ts'), "export { default as Button } from './Button.vue';\n");
+
+    const result = updateVueTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(false);
+  });
+});
+
+describe('Vue root barrel', () => {
+  it('appends export to root barrel', () => {
+    writeFileSync(join(tmpDir, 'index.ts'), '// root\n');
+
+    const result = updateVueRootBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tmpDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { default as Button } from './reactive/Button.vue'");
+  });
+});
+
+// ── Svelte ───────────────────────────────────────────────────
+
+describe('Svelte tier barrel', () => {
+  it('appends default-as export to tier barrel', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'index.ts'), '// existing\n');
+
+    const result = updateSvelteTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tierDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { default as Button } from './Button.svelte'");
+  });
+});
+
+describe('Svelte root barrel', () => {
+  it('appends export to root barrel', () => {
+    writeFileSync(join(tmpDir, 'index.ts'), '// root\n');
+
+    const result = updateSvelteRootBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tmpDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { default as Button } from './reactive/Button.svelte'");
+  });
+});
+
+// ── Angular ──────────────────────────────────────────────────
+
+describe('Angular tier barrel', () => {
+  it('appends named export to tier barrel', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'index.ts'), '// existing\n');
+
+    const result = updateAngularTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tierDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { Button } from './Button.js'");
+    // Angular doesn't export types separately
+    expect(content).not.toContain('ButtonProps');
+  });
+});
+
+describe('Angular root barrel', () => {
+  it('appends export to root barrel', () => {
+    writeFileSync(join(tmpDir, 'index.ts'), '// root\n');
+
+    const result = updateAngularRootBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tmpDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { Button } from './reactive/Button.js'");
+  });
+});
+
+// ── Solid ────────────────────────────────────────────────────
+
+describe('Solid tier barrel', () => {
+  it('appends export + type export to tier barrel', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'index.ts'), '// existing\n');
+
+    const result = updateSolidTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tierDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { Button } from './Button.js'");
+    expect(content).toContain("export type { ButtonProps } from './Button.js'");
+  });
+});
+
+describe('Solid root barrel', () => {
+  it('appends export to root barrel', () => {
+    writeFileSync(join(tmpDir, 'index.ts'), '// root\n');
+
+    const result = updateSolidRootBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tmpDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { Button } from './reactive/Button.js'");
+    expect(content).toContain("export type { ButtonProps } from './reactive/Button.js'");
+  });
+});
+
+// ── Preact ───────────────────────────────────────────────────
+
+describe('Preact tier barrel', () => {
+  it('appends export + type export to tier barrel', () => {
+    const tierDir = join(tmpDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'index.ts'), '// existing\n');
+
+    const result = updatePreactTierBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tierDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { Button } from './Button.js'");
+    expect(content).toContain("export type { ButtonProps } from './Button.js'");
+  });
+});
+
+describe('Preact root barrel', () => {
+  it('appends export to root barrel', () => {
+    writeFileSync(join(tmpDir, 'index.ts'), '// root\n');
+
+    const result = updatePreactRootBarrel(meta, tmpDir);
+    expect(result.updated).toBe(true);
+    const content = readFileSync(join(tmpDir, 'index.ts'), 'utf-8');
+    expect(content).toContain("export { Button } from './reactive/Button.js'");
+    expect(content).toContain("export type { ButtonProps } from './reactive/Button.js'");
+  });
+});

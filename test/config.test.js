@@ -1,0 +1,142 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { normalizeConfig, isIgnored, discoverComponents } from '../src/config.js';
+
+describe('normalizeConfig', () => {
+  it('defaults ignore to empty array', () => {
+    const config = normalizeConfig({ tiers: ['content'] });
+    expect(config.ignore).toEqual([]);
+  });
+
+  it('defaults tiers to empty array', () => {
+    const config = normalizeConfig({ ignore: [] });
+    expect(config.tiers).toEqual([]);
+  });
+
+  it('preserves existing values', () => {
+    const config = normalizeConfig({
+      ignore: ['**/index.js'],
+      tiers: ['reactive'],
+      components: 'src',
+    });
+    expect(config.ignore).toEqual(['**/index.js']);
+    expect(config.tiers).toEqual(['reactive']);
+  });
+});
+
+describe('isIgnored', () => {
+  it('matches bare filename', () => {
+    expect(isIgnored('index.js', '/src/reactive/index.js', ['index.js'])).toBe(true);
+  });
+
+  it('matches glob-prefixed filename', () => {
+    expect(isIgnored('index.js', '/src/reactive/index.js', ['**/index.js'])).toBe(true);
+  });
+
+  it('does not match unrelated filename', () => {
+    expect(isIgnored('button.js', '/src/reactive/button.js', ['index.js'])).toBe(false);
+  });
+
+  it('matches directory glob with forward slashes', () => {
+    expect(
+      isIgnored('star.js', '/src/reactive/icons/star.js', ['**/icons/**']),
+    ).toBe(true);
+  });
+
+  it('matches directory glob with backslashes', () => {
+    expect(
+      isIgnored('star.js', '\\src\\reactive\\icons\\star.js', ['**/icons/**']),
+    ).toBe(true);
+  });
+
+  it('does not match directory glob outside path', () => {
+    expect(
+      isIgnored('button.js', '/src/reactive/button.js', ['**/icons/**']),
+    ).toBe(false);
+  });
+
+  it('handles empty patterns', () => {
+    expect(isIgnored('button.js', '/src/button.js', [])).toBe(false);
+  });
+});
+
+describe('discoverComponents', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'prism-discover-'));
+  });
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('discovers .js files in tier directories', () => {
+    const srcDir = join(tmpDir, 'src');
+    const tierDir = join(srcDir, 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'button.js'), 'export class ArcButton {}');
+    writeFileSync(join(tierDir, 'card.js'), 'export class ArcCard {}');
+    writeFileSync(join(tierDir, 'styles.css'), 'body {}');
+
+    const config = normalizeConfig({
+      components: 'src',
+      tiers: ['reactive'],
+    });
+    const files = discoverComponents(config, tmpDir);
+    expect(files).toHaveLength(2);
+    expect(files[0]).toContain('button.js');
+    expect(files[1]).toContain('card.js');
+  });
+
+  it('ignores files matching ignore patterns', () => {
+    const tierDir = join(tmpDir, 'src', 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'button.js'), '');
+    writeFileSync(join(tierDir, 'index.js'), '');
+
+    const config = normalizeConfig({
+      components: 'src',
+      tiers: ['reactive'],
+      ignore: ['**/index.js'],
+    });
+    const files = discoverComponents(config, tmpDir);
+    expect(files).toHaveLength(1);
+    expect(files[0]).toContain('button.js');
+  });
+
+  it('handles missing tier directory gracefully', () => {
+    mkdirSync(join(tmpDir, 'src'), { recursive: true });
+
+    const config = normalizeConfig({
+      components: 'src',
+      tiers: ['nonexistent'],
+    });
+    const files = discoverComponents(config, tmpDir);
+    expect(files).toEqual([]);
+  });
+
+  it('scans multiple tiers', () => {
+    const contentDir = join(tmpDir, 'src', 'content');
+    const reactiveDir = join(tmpDir, 'src', 'reactive');
+    mkdirSync(contentDir, { recursive: true });
+    mkdirSync(reactiveDir, { recursive: true });
+    writeFileSync(join(contentDir, 'badge.js'), '');
+    writeFileSync(join(reactiveDir, 'button.js'), '');
+
+    const config = normalizeConfig({
+      components: 'src',
+      tiers: ['content', 'reactive'],
+    });
+    const files = discoverComponents(config, tmpDir);
+    expect(files).toHaveLength(2);
+  });
+
+  it('returns empty for empty tiers', () => {
+    const config = normalizeConfig({ components: 'src' });
+    const files = discoverComponents(config, tmpDir);
+    expect(files).toEqual([]);
+  });
+});
