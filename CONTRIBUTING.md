@@ -5,7 +5,7 @@ Thanks for your interest in contributing!
 ## Getting started
 
 ```bash
-git clone https://github.com/arclux/prism.git
+git clone https://github.com/Arclight-Digital/prism.git
 cd prism
 npm install
 ```

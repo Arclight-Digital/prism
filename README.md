@@ -1,6 +1,6 @@
 # @arclux/prism
 
-[![CI](https://github.com/arclux/prism/actions/workflows/ci.yml/badge.svg)](https://github.com/arclux/prism/actions/workflows/ci.yml)
+[![CI](https://github.com/Arclight-Digital/prism/actions/workflows/ci.yml/badge.svg)](https://github.com/Arclight-Digital/prism/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@arclux/prism)](https://www.npmjs.com/package/@arclux/prism)
 [![license](https://img.shields.io/npm/l/@arclux/prism)](LICENSE)
 [![node](https://img.shields.io/node/v/@arclux/prism)](package.json)

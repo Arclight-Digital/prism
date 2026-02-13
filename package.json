@@ -1,6 +1,6 @@
 {
   "name": "@arclux/prism",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Auto-generate framework wrappers (React, Vue, Svelte, Angular, Solid, Preact) and HTML/CSS examples from Lit web components",
   "type": "module",
   "exports": {
@@ -45,11 +45,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/arclux/prism.git"
+    "url": "https://github.com/Arclight-Digital/prism.git"
   },
-  "homepage": "https://github.com/arclux/prism#readme",
+  "homepage": "https://github.com/Arclight-Digital/prism#readme",
   "bugs": {
-    "url": "https://github.com/arclux/prism/issues"
+    "url": "https://github.com/Arclight-Digital/prism/issues"
   },
   "dependencies": {
     "chokidar": "^4.0.0"
