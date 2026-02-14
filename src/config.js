@@ -41,7 +41,11 @@ export function isIgnored(fileName, filePath, patterns) {
       continue;
     }
 
-    // Filename match
+    // Filename match (supports leading * wildcard, e.g. '*.register.js')
+    if (stripped.startsWith('*')) {
+      if (fileName.endsWith(stripped.slice(1))) return true;
+      continue;
+    }
     if (fileName === stripped) return true;
   }
   return false;

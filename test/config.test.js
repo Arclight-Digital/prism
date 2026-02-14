@@ -57,6 +57,24 @@ describe('isIgnored', () => {
     ).toBe(false);
   });
 
+  it('matches leading wildcard pattern', () => {
+    expect(
+      isIgnored('accordion.register.js', '/src/reactive/accordion.register.js', ['**/*.register.js']),
+    ).toBe(true);
+  });
+
+  it('does not match wildcard pattern against unrelated file', () => {
+    expect(
+      isIgnored('accordion.js', '/src/reactive/accordion.js', ['**/*.register.js']),
+    ).toBe(false);
+  });
+
+  it('matches bare wildcard without glob prefix', () => {
+    expect(
+      isIgnored('button.register.js', '/src/reactive/button.register.js', ['*.register.js']),
+    ).toBe(true);
+  });
+
   it('handles empty patterns', () => {
     expect(isIgnored('button.js', '/src/button.js', [])).toBe(false);
   });
@@ -132,6 +150,24 @@ describe('discoverComponents', () => {
     });
     const files = discoverComponents(config, tmpDir);
     expect(files).toHaveLength(2);
+  });
+
+  it('ignores files matching wildcard patterns like *.register.js', () => {
+    const tierDir = join(tmpDir, 'src', 'reactive');
+    mkdirSync(tierDir, { recursive: true });
+    writeFileSync(join(tierDir, 'accordion.js'), '');
+    writeFileSync(join(tierDir, 'accordion.register.js'), '');
+    writeFileSync(join(tierDir, 'button.js'), '');
+    writeFileSync(join(tierDir, 'button.register.js'), '');
+
+    const config = normalizeConfig({
+      components: 'src',
+      tiers: ['reactive'],
+      ignore: ['**/*.register.js'],
+    });
+    const files = discoverComponents(config, tmpDir);
+    expect(files).toHaveLength(2);
+    expect(files.map(f => f.split('/').pop())).toEqual(['accordion.js', 'button.js']);
   });
 
   it('returns empty for empty tiers', () => {
