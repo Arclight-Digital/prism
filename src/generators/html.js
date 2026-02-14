@@ -542,9 +542,9 @@ function generateHTMLInline(meta, config, root) {
 
   // Convert shadow→light CSS then resolve all tokens to literal values
   let componentCSS = shadowToLight(meta.css, meta.tag);
-  const tokensCSSPath = join(root, config.tokensCSS);
-  if (existsSync(tokensCSSPath)) {
-    const tokenMap = loadTokenMap(tokensCSSPath);
+  const baseCSSPath = join(root, config.baseCSS);
+  if (existsSync(baseCSSPath)) {
+    const tokenMap = loadTokenMap(baseCSSPath);
     componentCSS = resolveTokens(componentCSS, tokenMap);
   }
 

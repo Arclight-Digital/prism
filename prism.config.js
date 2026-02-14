@@ -18,14 +18,14 @@ export default {
   // HTML/CSS output
   html: {
     outDir: 'packages/html/examples',
-    tokensCSS: 'shared/tokens.css',
+    baseCSS: 'shared/tokens.css',
     inlineVariant: true,
   },
 
   // Standalone CSS output
   css: {
     outDir: 'packages/html/css',
-    tokensCSS: 'shared/tokens.css',
+    baseCSS: 'shared/tokens.css',
   },
 
   // Vue 3 output

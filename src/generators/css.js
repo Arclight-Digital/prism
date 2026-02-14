@@ -72,9 +72,9 @@ export function generateCSSBundle(metas, config, root) {
   const prefix = config.prefix;
   const tokensPath = join(outDir, prefix + '-ui.css');
   let tokenBlock = '';
-  const tokensCSSPath = join(root, config.tokensCSS);
-  if (existsSync(tokensCSSPath)) {
-    const tokensContent = readFileSync(tokensCSSPath, 'utf-8');
+  const baseCSSPath = join(root, config.baseCSS);
+  if (existsSync(baseCSSPath)) {
+    const tokensContent = readFileSync(baseCSSPath, 'utf-8');
     const rootMatch = tokensContent.match(/:root\s*\{([\s\S]*?)\}/);
     if (rootMatch) {
       tokenBlock = `:root {\n${rootMatch[1]}\n}\n`;

@@ -113,7 +113,7 @@ describe('generateHTML', () => {
   it('produces .html files for static components', () => {
     const htmlConfig = {
       outDir: 'out/html',
-      tokensCSS: 'tokens.css',
+      baseCSS: 'tokens.css',
       prefix: 'arc',
       inlineVariant: false,
     };
@@ -134,7 +134,7 @@ describe('generateHTML', () => {
 
 describe('generateCSS', () => {
   it('produces a .css file with light DOM selectors', () => {
-    const cssConfig = { outDir: 'out/css', tokensCSS: 'tokens.css', prefix: 'arc' };
+    const cssConfig = { outDir: 'out/css', baseCSS: 'tokens.css', prefix: 'arc' };
     const result = generateCSS(meta, cssConfig, tmpDir);
     expect(result.skipped).toBe(false);
     expect(result.results[0].written).toBe(true);
@@ -204,7 +204,7 @@ describe('manual-file safety', () => {
     mkdirSync(outDir, { recursive: true });
     writeFileSync(join(outDir, 'button.css'), '/* My manual CSS */\n');
 
-    const cssConfig = { outDir: 'out/css', tokensCSS: 'tokens.css', prefix: 'arc' };
+    const cssConfig = { outDir: 'out/css', baseCSS: 'tokens.css', prefix: 'arc' };
     const result = generateCSS(meta, cssConfig, tmpDir);
     expect(result.results[0].written).toBe(false);
   });

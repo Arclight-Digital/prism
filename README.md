@@ -134,13 +134,13 @@ export default {
   // ── HTML/CSS outputs (optional) ───────────────────
   html: {
     outDir: 'packages/html/examples',
-    tokensCSS: 'shared/tokens.css',
+    baseCSS: 'shared/tokens.css',
     inlineVariant: true,
   },
 
   css: {
     outDir: 'packages/html/css',
-    tokensCSS: 'shared/tokens.css',
+    baseCSS: 'shared/tokens.css',
   },
 };
 ```
@@ -169,7 +169,7 @@ Each framework section (`react`, `vue`, `svelte`, `angular`, `solid`, `preact`) 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `html.outDir` | `string` | *required* | Output directory for HTML snippet files |
-| `html.tokensCSS` | `string` | — | Path to design tokens CSS (used by inline variant to resolve `var()` references) |
+| `html.baseCSS` | `string` | — | Path to design tokens CSS (used by inline variant to resolve `var()` references) |
 | `html.inlineVariant` | `boolean` | `false` | Also generate `.inline.html` files with all tokens resolved and styles inlined |
 
 ### CSS options
@@ -177,7 +177,7 @@ Each framework section (`react`, `vue`, `svelte`, `angular`, `solid`, `preact`) 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `css.outDir` | `string` | *required* | Output directory for per-component CSS files and `{prefix}-ui.css` bundle |
-| `css.tokensCSS` | `string` | — | Path to design tokens CSS (included as `:root` block in the bundle) |
+| `css.baseCSS` | `string` | — | Path to design tokens CSS (included as `:root` block in the bundle) |
 
 ## How parsing works
 
