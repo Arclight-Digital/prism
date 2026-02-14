@@ -36,14 +36,14 @@
  * @returns {ComponentMeta|null}
  */
 export function parseComponent(source, filePath, prefix = 'arc') {
-  // Extract tag name and class name from customElements.define
-  const defineMatch = source.match(
-    /customElements\.define\(\s*['"]([^'"]+)['"]\s*,\s*(\w+)\s*\)/
-  );
-  if (!defineMatch) return null;
+  // Extract tag name from @tag JSDoc, falling back to customElements.define
+  const tagDocMatch = source.match(/@tag\s+([a-z][\w-]*)/);
+  const defineMatch = source.match(/customElements\.define\(\s*['"]([^'"]+)['"]\s*,\s*(\w+)\s*\)/);
+  const tag = tagDocMatch?.[1] ?? defineMatch?.[1];
+  const classMatch = source.match(/export\s+class\s+(\w+)\s+extends/);
+  const className = classMatch?.[1] ?? defineMatch?.[2];
 
-  const tag = defineMatch[1];
-  const className = defineMatch[2];
+  if (!tag || !className) return null;
 
   // Derive PascalName by stripping the prefix (e.g. Arc → Button)
   const pascalPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
