@@ -9,7 +9,7 @@
     "./resolve-tokens": "./src/resolve-tokens.js"
   },
   "bin": {
-    "prism": "./src/cli.js"
+    "prism": "src/cli.js"
   },
   "author": "Arclight Digital, LLC",
   "scripts": {
@@ -45,7 +45,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/arclight-digital/prism.git"
+    "url": "git+https://github.com/arclight-digital/prism.git"
   },
   "homepage": "https://github.com/arclight-digital/prism#readme",
   "bugs": {
